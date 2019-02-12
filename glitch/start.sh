@@ -19,7 +19,9 @@ set -o pipefail
 set -u
 
 source ${APP_TYPES_DIR}/utils.sh
+set -o allexport
 source glitch/env.sh
+set +o allexport
 
 
 ##
@@ -30,20 +32,21 @@ source glitch/env.sh
 
 # First, verify that cargo is installed and ready to go.
 if [ -f /tmp/${RUST_NAME}/bin/cargo ]; then
-  /tmp/${RUST_NAME}/bin/cargo --version
+  echo "TRACE: $(/tmp/${RUST_NAME}/bin/cargo --version)"
 else
-  >&2 echo 'Cargo not available (the `glitch/install.sh` script must have failed).'
+  >&2 echo 'ERROR: Cargo not available (the `glitch/install.sh` script must have failed).'
   exit 1
 fi
-export PATH=/tmp/${RUST_NAME}/bin:${PATH}
 
 # Compile in release mode.
-echo 'Compiling dependencies and this project with Cargo...'
+echo 'TRACE: Compiling dependencies and this project with Cargo...'
 time cargo build --release
->&2 echo 'Compiled dependencies and this project with Cargo.'
+echo 'TRACE: Compiled dependencies and this project with Cargo.'
 
 # Launch the server.
-/tmp/target/release/hello-rust-actix &
+echo 'TRACE: Launching project application/server in background...'
+${CARGO_TARGET_DIR}/release/hello-rust-actix &
+echo 'TRACE: Launched project application/server.'
 
 # This script's process must not return while the server is running, as
 # otherwise Glitch will try to launch it again.

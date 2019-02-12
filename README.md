@@ -2,7 +2,7 @@
 
 This Glitch project is a proof of concept for using Glitch with Rust, and specifically using Rust's [Actix](https://actix.rs/) web framework to run a simple "Hello World!" backend web application.
 
-At the moment, the project's compiled nature isn't a great fit for Glitch: launching from a cold start hilariously takes about TODO minutes to compile and kick things off. But once it's running, everything's peachy!
+At the moment, the project's compiled nature isn't a great fit for Glitch: launching from a cold start hilariously takes about a half hour to compile and kick things off. But once it's running, everything's peachy!
 
 ## Project Structure
 

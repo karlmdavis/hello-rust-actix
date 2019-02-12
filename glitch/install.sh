@@ -5,7 +5,7 @@
 # and again when any of the files in `watch.json`'s `install` section are
 # modified.
 #
-# Bootstraps the Rust toolchain and compiles the project.
+# Bootstraps the Rust toolchain.
 #
 # Note: This is **hilariously** slow from a cold start: don't just go get a cup of coffee,
 # but feel free to head out to the coffee shop. Improvements should be possible with the
@@ -25,8 +25,9 @@ set -o pipefail
 set -u
 
 source ${APP_TYPES_DIR}/utils.sh
+set -o allexport
 source glitch/env.sh
-
+set +o allexport
 
 ##
 # Download and "install" a more recent version of Rust, which Actix requires.
@@ -57,8 +58,9 @@ if [ ! -d /tmp/${RUST_NAME} ]; then
 fi
 echo "Installed Rust to '/tmp/${RUST_NAME}'."
 
-##
 # Symlink the Rust working directories to `/tmp` subdirs, so we don't bloat the Glitch project space with them.
-##
 mkdir -p /tmp/.cargo && ln -sf /tmp/.cargo ~/.cargo
 mkdir -p /tmp/target && ln -sf /tmp/target ~/target
+
+# Install sccache, a distributed build cache for Rust and Cargo.
+sccache_install
