@@ -1,0 +1,18 @@
+# Ignore the Python virtual environment and external roles.
+venv/
+roles_external/
+
+# Ignore Eclipse metadata.
+.project
+
+# Ignore the Ansible Vault password file.
+vault.password
+
+# Ignore the Glitch IAM user's access key details.
+glitch-iam-user.json
+
+# Ignore Ansible retry files.
+*.retry
+
+# Ignore Ansible log files.
+logs/

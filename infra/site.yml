@@ -1,0 +1,48 @@
+---
+##
+# Manages the AWS resources used to cache Rust/Cargo builds. Note that all 
+# of the variables prefixed with `vault_` are security-sensitive and are thus 
+# stored in encrypted Ansible Vault files. Those files can be edited using the 
+# `ansible-vault` command, e.g.:
+# 
+#     $ `ansible-vault edit group_vars/all/vault.yml`.
+##
+
+- name: Configure Systems for Ansible Pipelining
+  hosts: localhost
+  connection: local
+  tasks:
+
+    - name: Create an AWS IAM User for Glitch Systems
+      iam:
+        iam_type: user
+        name: "{{ vault_iam_user.name }}"
+        state: present
+        password: "{{ vault_iam_user.password }}"
+        update_password: on_create
+        # Access key will only be created if/when user is.
+        access_key_state: create
+      register: iam_user_glitch
+
+      # If this doesn't get written out when it's created, we're SOL.  
+    - name: Save Access Key to File
+      copy:
+        content: "{{ iam_user_glitch | to_nice_json }}"
+        # Listed in `.gitignore` so we don't accidentally commit credentials.
+        dest: glitch-iam-user.json
+      when: iam_user_glitch.changed
+
+    #- name: Create an AWS S3 Bucket for Rust Caching.
+    - s3_bucket:
+        name: "{{ vault_s3_bucket }}"
+        policy: "{{ lookup('template','templates/s3_bucket_policy.json') }}"
+    #  TODO: create bucket with safe set of permissions, ensure those are fixed if goofed by hand
+
+    #- name: TODO
+    #  TODO
+
+    #- name: TODO
+    #  TODO
+
+    #- name: TODO
+    #  TODO
