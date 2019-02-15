@@ -1,0 +1,8 @@
+##
+# Ansible Hosts & Groups Inventory
+#
+# We aren't actually managing any external systems directly, so this only
+# includes `localhost`, as Ansible gets sad if it doesn't have anything here.
+##
+
+localhost ansible_connection=local
