@@ -1,0 +1,22 @@
+{
+  "install": "bash glitch/install.sh",
+  "start": "bash glitch/start.sh",
+  "watch": {
+    "install": {
+      "include": [
+        "^glitch/env\\.sh$",
+        "^glitch/install\\.sh$"
+      ]
+    },
+    "restart": {
+      "include": [
+        "^glitch/env\\.sh$",
+        "^glitch/start\\.sh$",
+        "^\\.env$",
+        "^Cargo.*",
+        "^src/.*$"
+      ]
+    },
+    "throttle": 5000
+  }
+}
