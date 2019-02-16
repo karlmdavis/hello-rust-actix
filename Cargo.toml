@@ -4,4 +4,7 @@ version = "0.1.0"
 authors = ["Karl M. Davis <karl@justdavis.com>"]
 
 [dependencies]
+# The web framework we're using: [Actix](https://actix.rs/).
 actix-web = "0.7"
+# Powers the Jinja(-ish) templates used in the site: [Askama](https://github.com/djc/askama).
+askama = "0.7.2"

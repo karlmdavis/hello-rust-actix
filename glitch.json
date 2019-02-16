@@ -14,7 +14,8 @@
         "^glitch/start\\.sh$",
         "^\\.env$",
         "^Cargo.*",
-        "^src/.*$"
+        "^src/.*$",
+        "^templates/.*$"
       ]
     },
     "throttle": 5000
