@@ -1,0 +1,51 @@
+<!-- This is a templated HTML file:
+<!-- * served from your routes in `src/main.rs`. -->
+<!-- * rendered using Jinja(-ish) syntax, by the <https://github.com/djc/askama> library. -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Welcome to Glitch!</title>
+    <meta name="description" content="A cool thing made with Glitch">
+    <link id="favicon" rel="icon" href="https://glitch.com/edit/favicon-app.ico" type="image/x-icon">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body>
+    <header>
+      <h1>
+        Look! A Glitch app built using Rust!
+      </h1>
+    </header>
+
+    <main>
+      <p>Hello there!</p>
+      
+      <p>This is a super cool &amp; super fast app built using Rust and:</p>
+      <ul>
+        <li><a href="https://actix.rs/">Actix</a>: a Rust web framework.</li>
+        <li><a href="https://github.com/djc/askama">Askama</a>: a Rust templating engine, similar to Jinja.</li>
+        <li>... and a hilarious amount of Bash scripting to make Glitch and Rust play nice together (mostly).</li>
+      </ul>
+      
+      <p>The current count is: <strong>{{ count }}</strong>.</p>
+      
+      <form action="/increment" method="post">
+        <button type="submit" id="increment">Embiggen-ify It!</button>
+      </form>
+      
+      <p>Or click here to see how friendly this little app is: <a href="./howdy">Say Hello!</a></p>
+    </main>
+
+    <footer>
+      Made with <a href="https://glitch.com">Glitch</a>!
+    </footer>
+
+    <!-- include the Glitch button to show what the webpage is about and
+          to make it easier for folks to view source and remix -->
+    <div class="glitchButton" style="position:fixed;top:20px;right:20px;"></div>
+    <script src="https://button.glitch.me/button.js"></script>
+
+  </body>
+</html>
