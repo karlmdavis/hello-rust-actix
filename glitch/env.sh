@@ -82,11 +82,50 @@ sccache_install_from_source() {
   upload_file_to_s3_cache "${CARGO_HOME}/bin/sccache" "sccache-${SCCACHE_VERSION}"
 }
 
+# Saves a bundle of the project's entire working dir to the S3 cache.
+cache_working_dir_in_s3() {
+  echo "TRACE: Saving archive of '${WORKING_DIR}' to S3 cache..."
+
+  if [ "${S3_CACHE_ENABLED}" != "true" ]; then
+    >&2 echo "S3 cache not available; unable to save '${WORKING_DIR}' bundle to it."
+    exit 1
+  fi
+
+  tar -czf "${WORKING_DIR_CACHE_FILE}" "${WORKING_DIR}"
+  echo "TRACE: Created archive of '${WORKING_DIR}'."
+  upload_file_to_s3_cache "${WORKING_DIR_CACHE_FILE}" "${WORKING_DIR_CACHE_NAME}"
+  rm "${WORKING_DIR_CACHE_FILE}"
+  echo "TRACE: Saved archive of '${WORKING_DIR}' to S3 cache."
+}
+
+# Tries to download and restore the full working dir cache created by
+# `cache_working_dir_in_s3()`. If not available, will print a warning.
+try_restore_working_dir_from_s3_cache() {
+  echo "TRACE: Trying to restore '${WORKING_DIR}' from S3 cache..."
+  wget --quiet --output-document="${WORKING_DIR_CACHE_FILE}" "https://s3.amazonaws.com/justdavis-glitch-rust-caching/${WORKING_DIR_CACHE_NAME}" || rm "${WORKING_DIR_CACHE_FILE}"
+  if [ -f "${WORKING_DIR_CACHE_FILE}" ]; then
+    echo "TRACE: Downloaded '${WORKING_DIR}' cache from S3."
+  else
+    >&2 echo "WARN: Was not able to download '${WORKING_DIR}' from S3 cache."
+    return
+  fi
+
+  cd /tmp
+  tar -xzf "${WORKING_DIR_CACHE_NAME}" || { >&2 echo "WARN: Failed to extract '${WORKING_DIR_CACHE_FILE}', so removing it."; rm "${WORKING_DIR_CACHE_FILE}"; exit 1; }
+  echo "TRACE: Restored '${WORKING_DIR}' from S3 cache."
+}
+
+# The name of the project.
+PROJECT_NAME='hello-rust-actix'
+
 # The directory that all Rust-related items will be installed to, compiled in,
 # etc. Needs to have about 2GB of free space, so we'll use Glitch's `/tmp`
 # directory, which isn't restricted to the couple hundred MB that Glitch
 # project directories are.
 WORKING_DIR='/tmp/rust'
+
+WORKING_DIR_CACHE_NAME="${PROJECT_NAME}-working-dir-cache.tar.gz"
+WORKING_DIR_CACHE_FILE="/tmp/${WORKING_DIR_CACHE_NAME}"
 
 # The name of the Rust distribution to be downloaded and installed.
 RUST_NAME='rust-1.32.0-x86_64-unknown-linux-gnu'

@@ -40,6 +40,10 @@ RUST_INSTALLER_ARCHIVE="${WORKING_DIR}/${RUST_NAME}.tar.gz"
 RUST_INSTALLER_DIR="${WORKING_DIR}/${RUST_NAME}-installer"
 
 if [ ! -d "${RUST_INSTALL_DIR}" ]; then
+  try_restore_working_dir_from_s3_cache
+fi
+
+if [ ! -d "${RUST_INSTALL_DIR}" ]; then
 
   if [ ! -f "${RUST_INSTALLER_ARCHIVE}" ]; then
     echo "TRACE: Downloading '${RUST_INSTALLER_ARCHIVE}'..."

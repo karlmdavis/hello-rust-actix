@@ -46,7 +46,7 @@ echo 'TRACE: Compiled dependencies and this project with Cargo.'
 
 # Launch the server.
 echo 'TRACE: Launching project application/server in background...'
-${CARGO_TARGET_DIR}/debug/hello-rust-actix &
+${CARGO_TARGET_DIR}/debug/${PROJECT_NAME} &
 echo 'TRACE: Launched project application/server.'
 
 # This script's process must not return while the server is running, as
