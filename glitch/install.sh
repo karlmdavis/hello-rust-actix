@@ -34,29 +34,32 @@ set +o allexport
 #
 # Note: I wasn't able to get rustup working, so we're going to install Rust manually, per <https://forge.rust-lang.org/other-installation-methods.html>.
 ##
+echo "TRACE: Running 'glitch/install.sh'..."
 
-echo "TRACE: Downloading '/tmp/${RUST_NAME}.tar.gz'..."
-if [ ! -f /tmp/${RUST_NAME}.tar.gz ]; then
-  time curl -s -o /tmp/${RUST_NAME}.tar.gz https://static.rust-lang.org/dist/${RUST_NAME}.tar.gz
+if [ ! -f "${WORKING_DIR}/${RUST_NAME}.tar.gz" ]; then
+  echo "TRACE: Downloading '${WORKING_DIR}/${RUST_NAME}.tar.gz'..."
+  time curl -s -o "${WORKING_DIR}/${RUST_NAME}.tar.gz" "https://static.rust-lang.org/dist/${RUST_NAME}.tar.gz"
+  echo "TRACE: Downloaded '${WORKING_DIR}/${RUST_NAME}.tar.gz'."
 fi
-echo "TRACE: Downloaded '/tmp/${RUST_NAME}.tar.gz'."
 
-echo "TRACE: Extracting '/tmp/${RUST_NAME}.tar.gz'..."
-if [ ! -f /tmp/${RUST_NAME}-installer/install.sh ]; then
-  cd /tmp/
-  rm -rf {RUST_NAME}
-  rm -rf {RUST_NAME}-installer
-  time tar -xzf ${RUST_NAME}.tar.gz || { >&2 echo "WARN: Failed to extract '/tmp/${RUST_NAME}.tar.gz', so removing it."; rm ${RUST_NAME}.tar.gz; exit 1; }
-  mv ${RUST_NAME}/ ${RUST_NAME}-installer
+if [ ! -f "${WORKING_DIR}/${RUST_NAME}-installer/install.sh" ]; then
+  echo "TRACE: Extracting '${WORKING_DIR}/${RUST_NAME}.tar.gz'..."
+  cd "${WORKING_DIR}"
+  rm -rf "${RUST_NAME}"
+  rm -rf "${RUST_NAME}-installer"
+  time tar -xzf "${RUST_NAME}.tar.gz" || { >&2 echo "WARN: Failed to extract '${WORKING_DIR}/${RUST_NAME}.tar.gz', so removing it."; rm "${RUST_NAME}.tar.gz"; exit 1; }
+  mv "${RUST_NAME}/" "${RUST_NAME}-installer"
   cd ~
+  echo "TRACE: Extracted '${WORKING_DIR}/${RUST_NAME}-installer'..."
 fi
-echo "TRACE: Extracted '/tmp/${RUST_NAME}-installer'..."
 
-echo "TRACE: Installing Rust to '/tmp/${RUST_NAME}'..."
-if [ ! -d /tmp/${RUST_NAME} ]; then
-  time /tmp/${RUST_NAME}-installer/install.sh --destdir=/tmp/${RUST_NAME} --prefix=
+if [ ! -d "/${WORKING_DIR}/${RUST_NAME}" ]; then
+  echo "TRACE: Installing Rust to '${WORKING_DIR}/${RUST_NAME}'..."
+  time "${WORKING_DIR}/${RUST_NAME}-installer/install.sh" --destdir="${WORKING_DIR}/${RUST_NAME}" --prefix=
+  echo "TRACE: Installed Rust to '/tmp/${RUST_NAME}'."
 fi
-echo "TRACE: Installed Rust to '/tmp/${RUST_NAME}'."
 
 # Install sccache, a distributed build cache for Rust and Cargo.
 sccache_install
+
+echo "TRACE: Completed 'glitch/install.sh'."
