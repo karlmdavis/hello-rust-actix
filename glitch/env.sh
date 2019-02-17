@@ -32,16 +32,16 @@ sccache_enable() {
   if [ "${S3_CACHE_ENABLED}" = "true" ]; then
     SCCACHE_BUCKET="${AWS_S3_CACHE_BUCKET}"
   else
-    SCCACHE_DIR=/tmp/cargo/sccache
-    mkdir -p ${SCCACHE_DIR}
+    SCCACHE_DIR="${WORKING_DIR}/cargo/sccache"
+    mkdir -p "${SCCACHE_DIR}"
   fi
-  RUSTC_WRAPPER=${CARGO_HOME}/bin/sccache
+  RUSTC_WRAPPER="${CARGO_HOME}/bin/sccache"
 
-  if [ -f ${CARGO_HOME}/bin/sccache ]; then
+  if [ -f "${CARGO_HOME}/bin/sccache" ]; then
     echo 'TRACE: Launching/restarting sccache...'
     pkill -f sccache || true
-    mkdir -p /tmp/cargo/sccache
-    ${CARGO_HOME}/bin/sccache --start-server &> /tmp/cargo/sccache/sccache-server.log
+    mkdir -p "${WORKING_DIR}/cargo/sccache"
+    "${CARGO_HOME}/bin/sccache" --start-server &> "${WORKING_DIR}/cargo/sccache/sccache-server.log"
     echo 'TRACE: Launched/restarted sccache.'
   else
     echo 'TRACE: Did not start sccache; not yet present.'
@@ -51,20 +51,17 @@ sccache_enable() {
 # Tries to download a pre-built sccache binary from S3 and if not available,
 # uses Cargo to download, compile, and install it from source.
 sccache_install() {
-  if [ ! -f ${CARGO_HOME}/bin/sccache ]; then
+  if [ ! -f "${CARGO_HOME}/bin/sccache" ]; then
     echo 'TRACE: Trying to download cached sccache from S3...'
-    mkdir -p "${CARGO_HOME}/bin"
     wget --quiet --output-document="${CARGO_HOME}/bin/sccache" "https://s3.amazonaws.com/justdavis-glitch-rust-caching/sccache-${SCCACHE_VERSION}" || rm "${CARGO_HOME}/bin/sccache"
-    if [ -f ${CARGO_HOME}/bin/sccache ]; then
+    if [ -f "${CARGO_HOME}/bin/sccache" ]; then
       echo 'TRACE: Downloaded cached sccache from S3.'
       chmod a+x "${CARGO_HOME}/bin/sccache"
     else
       >&2 echo 'WARN: Was not able to download cached sccache from S3.'
+      sccache_install_from_source
     fi
-  fi
-  if [ ! -f ${CARGO_HOME}/bin/sccache ]; then
-    sccache_install_from_source
-    
+
     set -o allexport
     sccache_enable
     set +o allexport
@@ -75,26 +72,37 @@ sccache_install() {
 sccache_install_from_source() {
   echo 'TRACE: Downloading, compiling, and installing sccache...'
   # When running `cargo install`, the CARGO_TARGET_DIR variable is only honored if it's a relative path.
-  cd /tmp
-  CARGO_TARGET_DIR_TEMP=$CARGO_TARGET_DIR
-  export CARGO_TARGET_DIR=./cargo/target
-  time cargo install sccache --version ${SCCACHE_VERSION}
-  export CARGO_TARGET_DIR=$CARGO_TARGET_DIR_TEMP
+  cd "${WORKING_DIR}"
+  CARGO_TARGET_DIR_TEMP="${CARGO_TARGET_DIR}"
+  export CARGO_TARGET_DIR="./cargo/target"
+  time cargo install sccache --version "${SCCACHE_VERSION}"
+  export CARGO_TARGET_DIR="${CARGO_TARGET_DIR_TEMP}"
   cd ~
   echo 'TRACE: Installed sccache.'
   upload_file_to_s3_cache "${CARGO_HOME}/bin/sccache" "sccache-${SCCACHE_VERSION}"
 }
 
-RUST_NAME=rust-1.32.0-x86_64-unknown-linux-gnu
-PATH=/tmp/${RUST_NAME}/bin:${PATH}
+# The directory that all Rust-related items will be installed to, compiled in,
+# etc. Needs to have about 2GB of free space, so we'll use Glitch's `/tmp`
+# directory, which isn't restricted to the couple hundred MB that Glitch
+# project directories are.
+WORKING_DIR='/tmp/rust'
 
-CARGO_HOME=/tmp/cargo/home
-PATH=$CARGO_HOME:$PATH
-mkdir -p $CARGO_HOME
-CARGO_TARGET_DIR=/tmp/cargo/target
-mkdir -p $CARGO_TARGET_DIR
+# The name of the Rust distribution to be downloaded and installed.
+RUST_NAME='rust-1.32.0-x86_64-unknown-linux-gnu'
+PATH="${WORKING_DIR}/${RUST_NAME}/bin:${PATH}"
 
-SCCACHE_VERSION=0.2.8
+# Override the directory that Cargo will use for caching crates, installing
+# binaries, etc.
+CARGO_HOME="${WORKING_DIR}/cargo/home"
+mkdir -p "${CARGO_HOME}/bin"
+PATH="${CARGO_HOME}/bin:${PATH}"
+
+# Override the directory that Cargo will place generated artifacts in.
+CARGO_TARGET_DIR="${WORKING_DIR}/cargo/target"
+mkdir -p "${CARGO_TARGET_DIR}"
+
+SCCACHE_VERSION='0.2.8'
 
 # Check to see if an S3 bucket is available for caching.
 if [ -z "${AWS_S3_CACHE_BUCKET:-}" ] || [ -z "${AWS_ACCESS_KEY_ID:-}" ] || [ -z "${AWS_SECRET_ACCESS_KEY:-}" ]; then
