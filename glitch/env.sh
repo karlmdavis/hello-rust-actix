@@ -91,7 +91,9 @@ cache_working_dir_in_s3() {
     exit 1
   fi
 
-  tar -czf "${WORKING_DIR_CACHE_FILE}" "${WORKING_DIR}"
+  cd /tmp
+  tar -czf "${WORKING_DIR_CACHE_FILE}" rust
+  cd ~
   echo "TRACE: Created archive of '${WORKING_DIR}'."
   upload_file_to_s3_cache "${WORKING_DIR_CACHE_FILE}" "${WORKING_DIR_CACHE_NAME}"
   rm "${WORKING_DIR_CACHE_FILE}"
@@ -112,6 +114,8 @@ try_restore_working_dir_from_s3_cache() {
 
   cd /tmp
   tar -xzf "${WORKING_DIR_CACHE_NAME}" || { >&2 echo "WARN: Failed to extract '${WORKING_DIR_CACHE_FILE}', so removing it."; rm "${WORKING_DIR_CACHE_FILE}"; exit 1; }
+  cd ~
+  rm "${WORKING_DIR_CACHE_FILE}"
   echo "TRACE: Restored '${WORKING_DIR}' from S3 cache."
 }
 
