@@ -36,27 +36,34 @@ set +o allexport
 ##
 echo "TRACE: Running 'glitch/install.sh'..."
 
-if [ ! -f "${WORKING_DIR}/${RUST_NAME}.tar.gz" ]; then
-  echo "TRACE: Downloading '${WORKING_DIR}/${RUST_NAME}.tar.gz'..."
-  time curl -s -o "${WORKING_DIR}/${RUST_NAME}.tar.gz" "https://static.rust-lang.org/dist/${RUST_NAME}.tar.gz"
-  echo "TRACE: Downloaded '${WORKING_DIR}/${RUST_NAME}.tar.gz'."
-fi
+RUST_INSTALLER_ARCHIVE="${WORKING_DIR}/${RUST_NAME}.tar.gz"
+RUST_INSTALLER_DIR="${WORKING_DIR}/${RUST_NAME}-installer"
 
-if [ ! -f "${WORKING_DIR}/${RUST_NAME}-installer/install.sh" ]; then
-  echo "TRACE: Extracting '${WORKING_DIR}/${RUST_NAME}.tar.gz'..."
-  cd "${WORKING_DIR}"
-  rm -rf "${RUST_NAME}"
-  rm -rf "${RUST_NAME}-installer"
-  time tar -xzf "${RUST_NAME}.tar.gz" || { >&2 echo "WARN: Failed to extract '${WORKING_DIR}/${RUST_NAME}.tar.gz', so removing it."; rm "${RUST_NAME}.tar.gz"; exit 1; }
-  mv "${RUST_NAME}/" "${RUST_NAME}-installer"
-  cd ~
-  echo "TRACE: Extracted '${WORKING_DIR}/${RUST_NAME}-installer'..."
-fi
+if [ ! -d "${RUST_INSTALL_DIR}" ]; then
 
-if [ ! -d "/${WORKING_DIR}/${RUST_NAME}" ]; then
-  echo "TRACE: Installing Rust to '${WORKING_DIR}/${RUST_NAME}'..."
-  time "${WORKING_DIR}/${RUST_NAME}-installer/install.sh" --destdir="${WORKING_DIR}/${RUST_NAME}" --prefix=
-  echo "TRACE: Installed Rust to '/tmp/${RUST_NAME}'."
+  if [ ! -f "${RUST_INSTALLER_ARCHIVE}" ]; then
+    echo "TRACE: Downloading '${RUST_INSTALLER_ARCHIVE}'..."
+    time curl -s -o "${RUST_INSTALLER_ARCHIVE}" "https://static.rust-lang.org/dist/${RUST_NAME}.tar.gz"
+    echo "TRACE: Downloaded '${RUST_INSTALLER_ARCHIVE}'."
+  fi
+
+  if [ ! -f "${RUST_INSTALLER_DIR}/install.sh" ]; then
+    echo "TRACE: Extracting '${RUST_INSTALLER_ARCHIVE}'..."
+    rm -rf "${RUST_INSTALLER_DIR}"
+    cd "${WORKING_DIR}"
+    time tar -xzf "${RUST_NAME}.tar.gz" || { >&2 echo "WARN: Failed to extract '${RUST_INSTALLER_ARCHIVE}', so removing it."; rm "${RUST_NAME}.tar.gz"; exit 1; }
+    mv "${RUST_NAME}/" "${RUST_NAME}-installer"
+    cd ~
+    echo "TRACE: Extracted '${RUST_INSTALLER_DIR}'..."
+  fi
+
+  echo "TRACE: Installing Rust to '${RUST_INSTALL_DIR}'..."
+  time "${RUST_INSTALLER_DIR}/install.sh" --destdir="${RUST_INSTALL_DIR}" --prefix=
+
+  rm "${RUST_INSTALLER_ARCHIVE}"
+  rm -rf "${RUST_INSTALLER_DIR}"
+
+  echo "TRACE: Installed Rust to '${RUST_INSTALL_DIR}'."
 fi
 
 # Install sccache, a distributed build cache for Rust and Cargo.

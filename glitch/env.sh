@@ -90,7 +90,8 @@ WORKING_DIR='/tmp/rust'
 
 # The name of the Rust distribution to be downloaded and installed.
 RUST_NAME='rust-1.32.0-x86_64-unknown-linux-gnu'
-PATH="${WORKING_DIR}/${RUST_NAME}/bin:${PATH}"
+RUST_INSTALL_DIR="${WORKING_DIR}/${RUST_NAME}"
+PATH="${RUST_INSTALL_DIR}/bin:${PATH}"
 
 # Override the directory that Cargo will use for caching crates, installing
 # binaries, etc.

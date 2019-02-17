@@ -31,8 +31,8 @@ set +o allexport
 ##
 
 # First, verify that cargo is installed and ready to go.
-if [ -f "/${WORKING_DIR}/${RUST_NAME}/bin/cargo" ]; then
-  echo "TRACE: $(${WORKING_DIR}/${RUST_NAME}/bin/cargo --version)"
+if [ -f "${RUST_INSTALL_DIR}/bin/cargo" ]; then
+  echo "TRACE: $(${RUST_INSTALL_DIR}/bin/cargo --version)"
 else
   >&2 echo 'ERROR: Cargo not available (the `glitch/install.sh` script must have failed).'
   exit 1
