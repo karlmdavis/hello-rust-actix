@@ -8,9 +8,9 @@ It turns out that Glitch and Rust aren't quite a match made in heaven: Glitch co
 
 Well, building everything from a cold start with no S3 cache will take about an hour. That's... pretty bad.
 
-It's a lot better with an S3 cache present, though! Check out the project on GitHub here: <https://github.com/karlmdavis/hello-rust-actix>. The `master` branch over there has an `infra/` directory with Ansible scripts to setup the caching infrastructure in AWS for you: basically just an S3 bucket that the Glitch app can read from and write to. Once you have that setup, open up the `.env` file in Glitch and set the `AWS_S3_CACHE_BUCKET`, `AWS_ACCESS_KEY_ID`, and `AWS_SECRET_ACCESS_KEY` variables. After that, the project's install & compile loops drop down to 4 minutes or so, even from a cold start. Yay!
+It's a lot better with an S3 cache present, though! Check out the project's hidden `.infra/` directory (on GitHub here: <https://github.com/karlmdavis/hello-rust-actix/tree/master/.infra>), which has Ansible scripts to setup the caching infrastructure in AWS for you: basically just an S3 bucket that the Glitch app can read from and write to. Once you have that setup, open up the `.env` file in Glitch and set the `AWS_S3_CACHE_BUCKET`, `AWS_ACCESS_KEY_ID`, and `AWS_SECRET_ACCESS_KEY` variables. After that, the project's install & compile loops drop down to 4 minutes or so, even from a cold start (once you've built things at least once to populate your cache). Yay!
 
-(I mean, it's still not _great_, but it's at least workable, given that Glitch only forces a cold start every 12 hours or so.)
+(I mean, it's still not _great_, but it's at least workable.)
 
 There is one other niggle, though: the `cargo`/`rustc` compile cycle uses more than 500 MB of RAM (when there's no cache present). In debug mode, it does seem to eventually sneak past Glitch's process killer and succeed. But I can't reliably get a `--release` build of the project to succeed
 
