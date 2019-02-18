@@ -29,6 +29,7 @@ set +o allexport
 #
 # Note: The `$PORT` environment variable specifies the port to run the server on (should be `3000` for all Glitch apps).
 ##
+echo "TRACE: Running 'glitch/start.sh'..."
 
 # First, verify that cargo is installed and ready to go.
 if [ -f "${RUST_INSTALL_DIR}/bin/cargo" ]; then
@@ -41,13 +42,15 @@ fi
 # Compile in release mode.
 echo 'TRACE: Compiling dependencies and this project with Cargo...'
 pkill cargo || true; pkill rustc || true
-time cargo build
+cargo build
 echo 'TRACE: Compiled dependencies and this project with Cargo.'
 
 # Launch the server.
 echo 'TRACE: Launching project application/server in background...'
 ${CARGO_TARGET_DIR}/debug/${PROJECT_NAME} &
 echo 'TRACE: Launched project application/server.'
+
+echo "TRACE: Completed 'glitch/start.sh' (mostly) in ${SECONDS} seconds."
 
 # This script's process must not return while the server is running, as
 # otherwise Glitch will try to launch it again.

@@ -47,7 +47,7 @@ if [ ! -d "${RUST_INSTALL_DIR}" ]; then
 
   if [ ! -f "${RUST_INSTALLER_ARCHIVE}" ]; then
     echo "TRACE: Downloading '${RUST_INSTALLER_ARCHIVE}'..."
-    time curl -s -o "${RUST_INSTALLER_ARCHIVE}" "https://static.rust-lang.org/dist/${RUST_NAME}.tar.gz"
+    curl -s -o "${RUST_INSTALLER_ARCHIVE}" "https://static.rust-lang.org/dist/${RUST_NAME}.tar.gz"
     echo "TRACE: Downloaded '${RUST_INSTALLER_ARCHIVE}'."
   fi
 
@@ -55,14 +55,14 @@ if [ ! -d "${RUST_INSTALL_DIR}" ]; then
     echo "TRACE: Extracting '${RUST_INSTALLER_ARCHIVE}'..."
     rm -rf "${RUST_INSTALLER_DIR}"
     cd "${WORKING_DIR}"
-    time tar -xzf "${RUST_NAME}.tar.gz" || { >&2 echo "WARN: Failed to extract '${RUST_INSTALLER_ARCHIVE}', so removing it."; rm "${RUST_NAME}.tar.gz"; exit 1; }
+    tar -xzf "${RUST_NAME}.tar.gz" || { >&2 echo "WARN: Failed to extract '${RUST_INSTALLER_ARCHIVE}', so removing it."; rm "${RUST_NAME}.tar.gz"; exit 1; }
     mv "${RUST_NAME}/" "${RUST_NAME}-installer"
     cd ~
     echo "TRACE: Extracted '${RUST_INSTALLER_DIR}'..."
   fi
 
   echo "TRACE: Installing Rust to '${RUST_INSTALL_DIR}'..."
-  time "${RUST_INSTALLER_DIR}/install.sh" --destdir="${RUST_INSTALL_DIR}" --prefix=
+  "${RUST_INSTALLER_DIR}/install.sh" --destdir="${RUST_INSTALL_DIR}" --prefix=
 
   rm "${RUST_INSTALLER_ARCHIVE}"
   rm -rf "${RUST_INSTALLER_DIR}"
@@ -73,4 +73,4 @@ fi
 # Install sccache, a distributed build cache for Rust and Cargo.
 sccache_install
 
-echo "TRACE: Completed 'glitch/install.sh'."
+echo "TRACE: Completed 'glitch/install.sh' in ${SECONDS} seconds."

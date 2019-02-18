@@ -75,7 +75,7 @@ sccache_install_from_source() {
   cd "${WORKING_DIR}"
   CARGO_TARGET_DIR_TEMP="${CARGO_TARGET_DIR}"
   export CARGO_TARGET_DIR="./cargo/target"
-  time cargo install sccache --version "${SCCACHE_VERSION}"
+  cargo install sccache --version "${SCCACHE_VERSION}"
   export CARGO_TARGET_DIR="${CARGO_TARGET_DIR_TEMP}"
   cd ~
   echo 'TRACE: Installed sccache.'
