@@ -114,9 +114,9 @@ cache_working_dir_in_s3() {
 # `cache_working_dir_in_s3()`. If not available, will print a warning.
 try_restore_working_dir_from_s3_cache() {
   echo "TRACE: Trying to restore '${WORKING_DIR}' from S3 cache..."
-  wget --quiet --output-document=- "https://s3.amazonaws.com/justdavis-glitch-rust-caching/${WORKING_DIR_CACHE_NAME}" | tar --extract --ungzip --directory=/tmp || true
+  wget --quiet --output-document=- "https://s3.amazonaws.com/justdavis-glitch-rust-caching/${WORKING_DIR_CACHE_NAME}" | tar --extract --xz --directory=/tmp || true
 
-  if [ ! -f "${WORKING_DIR}" ]; then
+  if [ ! -d "${WORKING_DIR}" ]; then
     >&2 echo "WARN: Was not able to download '${WORKING_DIR}' from S3 cache."
     return
   fi
