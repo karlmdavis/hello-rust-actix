@@ -14,6 +14,7 @@
 # This script was derived from `${APP_TYPES_DIR}/custom/install.sh`,
 # as of 2019-02-12.
 ##
+echo "TRACE: Running 'glitch/install.sh'..."
 
 # Have the script exit with an error if any of the commands below return a non-zero result in `$?`.
 set -e
@@ -34,7 +35,6 @@ set +o allexport
 #
 # Note: I wasn't able to get rustup working, so we're going to install Rust manually, per <https://forge.rust-lang.org/other-installation-methods.html>.
 ##
-echo "TRACE: Running 'glitch/install.sh'..."
 
 RUST_INSTALLER_ARCHIVE="${WORKING_DIR}/${RUST_NAME}.tar.gz"
 RUST_INSTALLER_DIR="${WORKING_DIR}/${RUST_NAME}-installer"

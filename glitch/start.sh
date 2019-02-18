@@ -8,6 +8,7 @@
 # This script was derived from `${APP_TYPES_DIR}/custom/install.sh`,
 # as of 2019-02-12.
 ##
+echo "TRACE: Running 'glitch/start.sh'..."
 
 # Have the script exit with an error if any of the commands below return a non-zero result in `$?`.
 set -e
@@ -29,7 +30,6 @@ set +o allexport
 #
 # Note: The `$PORT` environment variable specifies the port to run the server on (should be `3000` for all Glitch apps).
 ##
-echo "TRACE: Running 'glitch/start.sh'..."
 
 # First, verify that cargo is installed and ready to go.
 if [ -f "${RUST_INSTALL_DIR}/bin/cargo" ]; then
