@@ -91,9 +91,19 @@ cache_working_dir_in_s3() {
     exit 1
   fi
 
-  cd /tmp
-  tar -czf "${WORKING_DIR_CACHE_FILE}" rust
-  cd ~
+  # Compress the working directory.
+  #
+  # I did some compression-decompression comparisons:
+  # * `tar -cz`: 530 MB archive, 3:52 minutes compression, 0:39 minutes decompression
+  # * `GZIP=-9 tar -cz`: 526 MB archive, 9:47 minutes compression, 0:46 minutes decompression
+  # * `tar -c | xz -6`: 385 MB archive, 32:13 minutes compression, 2:21 minutes decompression
+  # * `tar -c | xz -8`: 371 MB archive, 31:21 minutes compression, 1:21 minutes decompression
+  # * Note: `xa -9` couldn't be tried, as it requires more than 500 MB of RAM.
+  #
+  # Given the oddities there, it seems safe to say that all of this is super
+  # noisy. Nonetheless, I decided to go with the `xz -8` version for now.
+
+  tar --directory=/tmp --create rust | xz -8 > "${WORKING_DIR_CACHE_FILE}"
   echo "TRACE: Created archive of '${WORKING_DIR}'."
   upload_file_to_s3_cache "${WORKING_DIR_CACHE_FILE}" "${WORKING_DIR_CACHE_NAME}"
   rm "${WORKING_DIR_CACHE_FILE}"
@@ -104,18 +114,13 @@ cache_working_dir_in_s3() {
 # `cache_working_dir_in_s3()`. If not available, will print a warning.
 try_restore_working_dir_from_s3_cache() {
   echo "TRACE: Trying to restore '${WORKING_DIR}' from S3 cache..."
-  wget --quiet --output-document="${WORKING_DIR_CACHE_FILE}" "https://s3.amazonaws.com/justdavis-glitch-rust-caching/${WORKING_DIR_CACHE_NAME}" || rm "${WORKING_DIR_CACHE_FILE}"
-  if [ -f "${WORKING_DIR_CACHE_FILE}" ]; then
-    echo "TRACE: Downloaded '${WORKING_DIR}' cache from S3."
-  else
+  wget --quiet --output-document=- "https://s3.amazonaws.com/justdavis-glitch-rust-caching/${WORKING_DIR_CACHE_NAME}" | tar --extract --ungzip --directory=/tmp || true
+
+  if [ ! -f "${WORKING_DIR}" ]; then
     >&2 echo "WARN: Was not able to download '${WORKING_DIR}' from S3 cache."
     return
   fi
 
-  cd /tmp
-  tar -xzf "${WORKING_DIR_CACHE_NAME}" || { >&2 echo "WARN: Failed to extract '${WORKING_DIR_CACHE_FILE}', so removing it."; rm "${WORKING_DIR_CACHE_FILE}"; exit 1; }
-  cd ~
-  rm "${WORKING_DIR_CACHE_FILE}"
   echo "TRACE: Restored '${WORKING_DIR}' from S3 cache."
 }
 
@@ -128,7 +133,7 @@ PROJECT_NAME='hello-rust-actix'
 # project directories are.
 WORKING_DIR='/tmp/rust'
 
-WORKING_DIR_CACHE_NAME="${PROJECT_NAME}-working-dir-cache.tar.gz"
+WORKING_DIR_CACHE_NAME="${PROJECT_NAME}-working-dir-cache.tar.xz"
 WORKING_DIR_CACHE_FILE="/tmp/${WORKING_DIR_CACHE_NAME}"
 
 # The name of the Rust distribution to be downloaded and installed.
