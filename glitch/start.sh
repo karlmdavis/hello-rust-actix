@@ -20,6 +20,10 @@ set -o pipefail
 set -u
 
 set -o allexport
+# Import secrets (if present) when running on local dev system.
+if [[ -f .env ]]; then source .env; fi
+
+# Import shared variables and functions.
 source glitch/env.sh
 set +o allexport
 
