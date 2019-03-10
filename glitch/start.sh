@@ -19,11 +19,6 @@ set -o pipefail
 # Ensure that attempts to use unbound variables cause errors.
 set -u
 
-# TODO Can this be removed? It just sets a couple signal traps, and I suspect the Glitch framework itself is calling it.
-if [[ -f "${APP_TYPES_DIR}/utils.sh" ]]; then
-  source ${APP_TYPES_DIR}/utils.sh
-fi
-
 set -o allexport
 source glitch/env.sh
 set +o allexport
