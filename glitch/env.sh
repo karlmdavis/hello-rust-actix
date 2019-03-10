@@ -39,6 +39,7 @@ sccache_enable() {
 
   if [ -f "${CARGO_HOME}/bin/sccache" ]; then
     echo 'TRACE: Launching/restarting sccache...'
+    set -x
     pkill -f sccache || true
     mkdir -p "${WORKING_DIR}/cargo/sccache"
     "${CARGO_HOME}/bin/sccache" --start-server &> "${WORKING_DIR}/cargo/sccache/sccache-server.log"
