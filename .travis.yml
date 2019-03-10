@@ -8,3 +8,6 @@ install:
 
 script:
   - glitch/build.sh
+
+after_failure:
+  - cat /tmp/rust/cargo/sccache/sccache-server.log
