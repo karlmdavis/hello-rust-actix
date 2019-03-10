@@ -1,6 +1,6 @@
 ##
 # Defines the variables, functions, etc. shared between
-# `install.sh` and `start.sh`.
+# `install.sh`, `build.sh`, and `start.sh`.
 ##
 
 # Uploads the specified file to the S3 cache.

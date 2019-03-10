@@ -1,0 +1,10 @@
+---
+# We're building Rust, but will use our `glitch/*` shell scripts to handle
+# toolchain setup, etc.
+language: rust
+
+install:
+  - glitch/install.sh
+
+script:
+  - glitch/build.sh

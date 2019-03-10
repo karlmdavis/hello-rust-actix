@@ -1,4 +1,4 @@
-#!/usr/bin/dumb-init /bin/bash
+#!/bin/bash
 
 ##
 # Glitch runs this script when first starting a container to run the app,
@@ -25,7 +25,11 @@ set -o pipefail
 # Ensure that attempts to use unbound variables cause errors.
 set -u
 
-source ${APP_TYPES_DIR}/utils.sh
+# TODO Can this be removed? It just sets a couple signal traps, and I suspect the Glitch framework itself is calling it.
+if [[ -f "${APP_TYPES_DIR}/utils.sh" ]]; then
+  source ${APP_TYPES_DIR}/utils.sh
+fi
+
 set -o allexport
 source glitch/env.sh
 set +o allexport
